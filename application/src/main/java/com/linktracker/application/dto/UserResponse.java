@@ -1,0 +1,8 @@
+package com.linktracker.application.dto;
+
+import com.linktracker.application.model.RoleName;
+import java.time.Instant;
+import java.util.Set;
+
+public record UserResponse(Long id, String email, Set<RoleName> roles, Instant createdAt) {
+}
