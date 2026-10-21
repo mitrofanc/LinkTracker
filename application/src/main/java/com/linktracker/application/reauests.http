@@ -1,0 +1,39 @@
+@baseUrl = http://localhost:8080
+
+### 1. Регистрация
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "demo@example.com",
+  "password": "demo-password-123"
+}
+
+### 2. Вход
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@example.com",
+  "password": "demo-password-123"
+}
+
+> {%
+    client.global.set("accessToken", response.body.accessToken);
+%}
+
+### 3. Профиль с токеном
+GET {{baseUrl}}/me
+Authorization: Bearer {{accessToken}}
+
+### 4. Профиль без токена
+GET {{baseUrl}}/me
+
+### 5. Неверный пароль
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@example.com",
+  "password": "wrong-password"
+}
