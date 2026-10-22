@@ -37,3 +37,19 @@ Content-Type: application/json
   "email": "demo@example.com",
   "password": "wrong-password"
 }
+
+### 6. Подписаться на GitHub-репозиторий — 201, при повторе 409
+POST {{baseUrl}}/subscriptions
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "url": "https://github.com/spring-projects/spring-boot"
+}
+
+### 7. Мои подписки — 200
+GET {{baseUrl}}/subscriptions
+Authorization: Bearer {{accessToken}}
+
+### 8. Подписки без токена — 401
+GET {{baseUrl}}/subscriptions

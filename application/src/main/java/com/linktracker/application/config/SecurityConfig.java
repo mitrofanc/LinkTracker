@@ -36,6 +36,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.GET, "/me").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/subscriptions").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/subscriptions").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(resource -> resource

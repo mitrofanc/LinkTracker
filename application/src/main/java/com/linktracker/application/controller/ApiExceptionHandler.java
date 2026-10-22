@@ -2,6 +2,8 @@ package com.linktracker.application.controller;
 
 import com.linktracker.application.dto.ApiError;
 import com.linktracker.application.exception.EmailAlreadyExistsException;
+import com.linktracker.application.exception.InvalidSourceUrlException;
+import com.linktracker.application.exception.SubscriptionAlreadyExistsException;
 import java.util.Map;
 import java.util.TreeMap;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+    @ExceptionHandler(InvalidSourceUrlException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError invalidSourceUrl(InvalidSourceUrlException exception) {
+        return new ApiError("INVALID_SOURCE_URL", exception.getMessage(), Map.of());
+    }
+
+    @ExceptionHandler(SubscriptionAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError subscriptionAlreadyExists(SubscriptionAlreadyExistsException exception) {
+        return new ApiError("SUBSCRIPTION_ALREADY_EXISTS", exception.getMessage(), Map.of());
+    }
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
