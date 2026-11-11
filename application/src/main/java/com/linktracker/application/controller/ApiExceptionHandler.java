@@ -4,6 +4,9 @@ import com.linktracker.application.dto.ApiError;
 import com.linktracker.application.exception.EmailAlreadyExistsException;
 import com.linktracker.application.exception.InvalidSourceUrlException;
 import com.linktracker.application.exception.SubscriptionAlreadyExistsException;
+import com.linktracker.application.exception.LoginRateLimitException;
+import com.linktracker.application.exception.LoginUnavailableException;
+import org.springframework.http.ResponseEntity;
 import java.util.Map;
 import java.util.TreeMap;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+    @ExceptionHandler(LoginRateLimitException.class)
+    public ResponseEntity<ApiError> loginRateLimited(LoginRateLimitException exception) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", Long.toString(exception.getRetryAfterSeconds()))
+                .body(new ApiError("LOGIN_RATE_LIMITED", exception.getMessage(), Map.of()));
+    }
+
+    @ExceptionHandler(LoginUnavailableException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ApiError loginUnavailable(LoginUnavailableException exception) {
+        return new ApiError("LOGIN_UNAVAILABLE", exception.getMessage(), Map.of());
+    }
 
     @ExceptionHandler(InvalidSourceUrlException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

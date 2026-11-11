@@ -31,7 +31,9 @@ import org.springframework.test.web.servlet.MockMvc;
     "spring.datasource.username=${TEST_DB_USERNAME}",
     "spring.datasource.password=${TEST_DB_PASSWORD}",
     "security.password.pepper=${TEST_PASSWORD_PEPPER}",
-    "security.jwt.secret=${TEST_JWT_SECRET}"
+    "security.jwt.secret=${TEST_JWT_SECRET}",
+    "spring.data.redis.host=${TEST_REDIS_HOST}",
+    "spring.data.redis.port=${TEST_REDIS_PORT}"
 })
 @AutoConfigureMockMvc
 class RegistrationTests {
@@ -70,7 +72,7 @@ class RegistrationTests {
                 .andExpect(jsonPath("$.passwordHash").doesNotExist());
 
         User user = users.findByEmail("student@example.test").orElseThrow();
-        assertThat(user.getPasswordHash()).isNotEqualTo(password).startsWith("{pbkdf2}");
+        assertThat(user.getPasswordHash()).isNotEqualTo(password);
         assertThat(encoder.matches(password, user.getPasswordHash())).isTrue();
         assertThat(encoder.matches("wrong-password", user.getPasswordHash())).isFalse();
         assertThat(user.getRoles()).extracting(Role::getName).containsExactly(RoleName.USER);

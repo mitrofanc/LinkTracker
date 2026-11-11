@@ -37,7 +37,9 @@ import org.springframework.test.web.servlet.MockMvc;
     "spring.datasource.username=${TEST_DB_USERNAME}",
     "spring.datasource.password=${TEST_DB_PASSWORD}",
     "security.password.pepper=${TEST_PASSWORD_PEPPER}",
-    "security.jwt.secret=${TEST_JWT_SECRET}"
+    "security.jwt.secret=${TEST_JWT_SECRET}",
+    "spring.data.redis.host=${TEST_REDIS_HOST}",
+    "spring.data.redis.port=${TEST_REDIS_PORT}"
 })
 @AutoConfigureMockMvc
 class LoginTests {
@@ -59,10 +61,38 @@ class LoginTests {
     @Autowired
     private JdbcTemplate jdbc;
 
+    @Autowired
+    private org.springframework.data.redis.core.StringRedisTemplate redis;
+
     @AfterEach
     void cleanTestDatabase() {
+        var keys = redis.keys("login:*");
+        if (keys != null && !keys.isEmpty()) redis.delete(keys);
         jdbc.update("DELETE FROM user_roles");
         jdbc.update("DELETE FROM users");
+    }
+
+    @Test
+    void sixthFailedLoginIsRateLimitedWithRetryHeader() throws Exception {
+        for (int i = 0; i < 5; i++) {
+            mvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"email\":\"limit@example.test\",\"password\":\"incorrect\"}"))
+                    .andExpect(status().isUnauthorized());
+        }
+        mvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+                .header("X-Forwarded-For", "203.0.113.42")
+                .content("{\"email\":\"limit@example.test\",\"password\":\"incorrect\"}"))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(header().exists("Retry-After"))
+                .andExpect(jsonPath("$.code").value("LOGIN_RATE_LIMITED"));
+    }
+
+    @Test
+    void frontendAssetsArePublicButApiStillRequiresToken() throws Exception {
+        mvc.perform(get("/")).andExpect(status().isOk());
+        mvc.perform(get("/app.js")).andExpect(status().isOk());
+        mvc.perform(get("/styles.css")).andExpect(status().isOk());
+        mvc.perform(get("/subscriptions")).andExpect(status().isUnauthorized());
     }
 
     @Test

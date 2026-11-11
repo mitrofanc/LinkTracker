@@ -1,0 +1,7 @@
+
+# Local credentials and IDE launch settings
+.run/*.local.run.xml
+.env
+.env.*
+!.env.example
+**/.DS_Store

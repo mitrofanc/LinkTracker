@@ -31,7 +31,9 @@ import org.springframework.test.web.servlet.MockMvc;
     "spring.datasource.username=${TEST_DB_USERNAME}",
     "spring.datasource.password=${TEST_DB_PASSWORD}",
     "security.password.pepper=${TEST_PASSWORD_PEPPER}",
-    "security.jwt.secret=${TEST_JWT_SECRET}"
+    "security.jwt.secret=${TEST_JWT_SECRET}",
+    "spring.data.redis.host=${TEST_REDIS_HOST}",
+    "spring.data.redis.port=${TEST_REDIS_PORT}"
 })
 @AutoConfigureMockMvc
 class SubscriptionTests {
